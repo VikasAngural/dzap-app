@@ -4,6 +4,7 @@ export const Disperse = () => {
 const [userInput,setUserInput] = useState("");
 const [isDuplicate,setIsDuplicate] = useState(false);
 const [errors, setErrors] = useState([]);
+const [inputIndex, setInputIndex] = useState(1)
 
   const onSubmit = ()=>{
     setErrors([]);
@@ -87,12 +88,46 @@ const [errors, setErrors] = useState([]);
     setIsDuplicate(false);
   }
 
+  const handleOnKeyUp = (e)=>{
+    const inputText = e.target.value;
+    if(e.keyCode === 13){
+        setInputIndex(inputIndex+1);
+    }
+    if(e.keyCode === 8){
+        getIndex(inputText)
+    }
+  }
+
+  const handleOnPaste =(e)=>{
+    const inputText = e.clipboardData.getData('text');
+    getIndex(inputText)
+  }
+
+  const handleOnCut = (e)=>{
+    setTimeout(()=>{
+        const inputText = e.target.value;
+        getIndex(inputText)
+    },0)
+  }
+
+  const getIndex = (inputText)=>{
+    const count = (inputText.match(new RegExp("\n", "g")) || []).length;
+    setInputIndex(count+1);
+  }
+
   return (
     <div className='disperse-container'>
         <p className='info-text'>Addresses with Amounts</p>
         <div className='addressesWithAmountsContainer width-full'>
-            <form>
-                <textarea className='text-input' onChange={handleOnChange} value={userInput} name="Text1" cols="78" rows="10"></textarea>
+            <form className='input-form'>
+                <div>
+                    {
+                        Array.from({length: inputIndex}, (_, index) => index + 1).map((el)=>{
+                            return <p className='p-index' key={el}>{el}</p>
+                        })
+                    }
+                </div>
+                <textarea className='text-input' onCut={handleOnCut} onPaste={handleOnPaste} onKeyUp={handleOnKeyUp} onChange={handleOnChange} value={userInput} name="Text1" cols="76" rows="10"></textarea>
             </form>
         </div>
         <p className='info-text'>Separated by ',' or'', or'='</p>
